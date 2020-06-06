@@ -1,12 +1,11 @@
 package server;
 
 import java.util.HashSet;
-import java.util.Scanner;
 import java.net.*;
 import java.io.*;
 
 /**
- * Defines a server that accepts client.SomnoClient connections
+ * Defines a server that accepts SomnoClient connections
  */
 public class SomnoServer {
     private HashSet<SomnoServerThread> connectedUsers = new HashSet();
@@ -19,6 +18,10 @@ public class SomnoServer {
      * Accomplish this by just taking whatever messages they send and sending them out to every connected user
      */
 
+    /**
+     * Main method. Accepts a port to launch on. If no port is specified, it runs on port 27034
+     * @param args the command-line arguments
+     */
     public static void main(String[] args) {
         try {
             if (args.length == 0) {
@@ -34,10 +37,17 @@ public class SomnoServer {
         System.out.println("SomnoServer shutting down...");
     }
 
+    /**
+     * Interrupts the main thread when it's time to shut down
+     */
     public void shutdown() {
         thisThread.interrupt();
     }
 
+    /**
+     * Defines a SomnoServer which runs on a port at its current ip address
+     * @param port the port it runs on
+     */
     public SomnoServer(int port) {
         System.out.println("Attempting to launch on port " + port);
         CommandInterpreter c = new CommandInterpreter(connectedUsers, this);
@@ -74,13 +84,20 @@ class CommandInterpreter extends Thread {
     private SomnoServer hostServer;
     private boolean isShutDown = false;
 
+    /**
+     * CommandInterpreter constructor
+     * @param connectedUsers the list of connected users
+     * @param server the server that this console is connected to
+     */
     public CommandInterpreter(HashSet<SomnoServerThread> connectedUsers, SomnoServer server) {
         this.connectedUsers = connectedUsers;
         hostServer = server;
     }
 
+    /**
+     * Starts the thread
+     */
     public void run() {
-
         BufferedReader cmdReader = new BufferedReader(new InputStreamReader(System.in));
         //endless loop of grabbing commands from the server console
         String cmd;
@@ -96,6 +113,11 @@ class CommandInterpreter extends Thread {
 
     }
 
+    /**
+     * Executes a command server-side.
+     * @param cmd the command to try and execute
+     * @throws IOException any ioexception
+     */
     private void executeCommand(String cmd) throws IOException {
         String[] cmdSplit = cmd.split(" ", 2);
         boolean successful = false;
