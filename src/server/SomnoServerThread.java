@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
-import java.util.Iterator;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+
 
 /**
  * Defines a SomnoServerThread, which is started by the SomnoServer
@@ -49,16 +51,17 @@ public class SomnoServerThread extends Thread {
      * @param msg the message to send out
      * @param opcode the opcode to use to format the message
      */
-    public void update(String msg, int opcode) {
+    public synchronized void update(String msg, int opcode) {
+        String time = getDateTimeAsString();
         switch (opcode) { //format the message based on the opcode
             case 0:
-                msg = "nickname [time] > " + msg;
+                msg = "nickname [" + time + "] > " + msg;
                 break;
             case 1:
-                msg = msg + " connected at " + "[time]";
+                msg = msg + " connected at [" + time + "]";
                 break;
             case 2:
-                msg = msg + " disconnected at " + "[time]";
+                msg = msg + " disconnected at [" + time + "]";
                 break;
         }
 
@@ -67,6 +70,8 @@ public class SomnoServerThread extends Thread {
             //print the message on each thread's outstream
             thread.sendMessage(msg);
         }
+
+        log(msg);
 
     }
 
@@ -93,6 +98,7 @@ public class SomnoServerThread extends Thread {
      * @throws IOException thrown when receive, send, or socket are already closed
      */
     private void closeConnections(BufferedReader receive, PrintWriter send) throws IOException {
+        send.println("/logout");
         receive.close();
         send.close();
         socket.close();
@@ -102,11 +108,16 @@ public class SomnoServerThread extends Thread {
         return nickname;
     }
 
-
-
     /**
-     * Runs the send/receive logic for a single user
+     * Gets a string that represents the current date and time
+     * @return The date and time, represented as year/moth/day hour:minute:second
      */
+    public String getDateTimeAsString() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        return dtf.format(now);
+    }
+
     public void run() {
 
         try {
@@ -125,7 +136,6 @@ public class SomnoServerThread extends Thread {
                     break;
                 } else { //send message to all connected clients
                     update(msgIn, 0);
-                    log(msgIn);
                 }
 
 

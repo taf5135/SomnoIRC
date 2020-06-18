@@ -37,10 +37,12 @@ public class SomnoClient {
         //if successful, send the nickname and then start listening and sending information
         //sending will be handled on this thread, while listening will be handled on another
 
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))){
+        try (BufferedReader userin = new BufferedReader(new InputStreamReader(System.in))){
             socket = new Socket(ip, port);
 
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            out.println(nickname); //sends the nickname to the server
 
             //start the receiving thread
             Listener l = new Listener(socket);
@@ -49,17 +51,11 @@ public class SomnoClient {
             String msg;
 
             //start the sending loop
-            while(true) {
+            do {
                 //get chats from the user
-                msg = in.readLine();
-
+                msg = userin.readLine();
                 out.println(msg);
-                if (msg.equals("/logout")) {
-                    l.interrupt();
-                }
-
-
-            }
+            } while (!msg.equals("/logout"));
 
         } catch (UnknownHostException e) {
             System.out.println("Invalid host address. Cannot continue.");
@@ -85,10 +81,11 @@ class Listener extends Thread {
     }
 
     public void run() {
+        String received;
         try (BufferedReader receive = new BufferedReader(
                 new InputStreamReader(socket.getInputStream()))){
-            while (!Thread.interrupted()) {
-                System.out.println(receive.readLine());
+            while (!((received = receive.readLine()).equals("/logout"))) {
+                System.out.println(received);
             }
         } catch (IOException e) {
             e.printStackTrace();
