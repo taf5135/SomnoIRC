@@ -5,6 +5,11 @@ import java.net.*;
 
 /**
  * Defines a SomnoClient which connects to a SomnoServer
+ *
+ * KNOWN BUGS:
+ * -Client requires user to send a message first, which defines their nickname
+ * -Sending logout message does not terminate the Listener process, and thus the program fails to close
+ * -Time code is not displayed properly -- working on making this a feature
  */
 public class SomnoClient {
     private Socket socket;

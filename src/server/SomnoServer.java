@@ -6,6 +6,12 @@ import java.io.*;
 
 /**
  * Defines a server that accepts SomnoClient connections
+ *
+ * KNOWN BUGS:
+ * -Server does not correctly log multiple things, including:
+ *      -user connections
+ *      -user disconnections
+ *      -who's saying what message at what time
  */
 public class SomnoServer {
     private HashSet<SomnoServerThread> connectedUsers = new HashSet();
