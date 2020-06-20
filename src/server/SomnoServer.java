@@ -3,15 +3,16 @@ package server;
 import java.util.HashSet;
 import java.net.*;
 import java.io.*;
+import java.util.HashMap; //eventually replaces the HashSet
 
 /**
  * Defines a server that accepts SomnoClient connections
  *
  * KNOWN BUGS:
- * -Server does not correctly log multiple things, including:
- *      -user connections
- *      -user disconnections
- *      -who's saying what message at what time
+ * -Server does not correctly shut down or take commands
+ * -Server crash fails to close all client threads
+ * -User does not properly log out when kicked
+ *
  */
 public class SomnoServer {
     private HashSet<SomnoServerThread> connectedUsers = new HashSet();
@@ -65,6 +66,9 @@ public class SomnoServer {
                 t.start();
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Generic exception caught");
             e.printStackTrace();
         }
 
@@ -134,6 +138,7 @@ class CommandInterpreter extends Thread {
                 for (SomnoServerThread thread : connectedUsers) {
                     thread.sendMessage("Server says: " + cmdSplit[1]);
                 }
+                System.out.println(cmdSplit[1]);
                 break;
             case "kick":
                 //kick a user and log it in the console
@@ -142,6 +147,7 @@ class CommandInterpreter extends Thread {
                     if (thread.getNickname().equals(cmdSplit[1])) {
                         thread.kick();
                         successful = true;
+
                     }
                 }
 

@@ -7,9 +7,8 @@ import java.net.*;
  * Defines a SomnoClient which connects to a SomnoServer
  *
  * KNOWN BUGS:
- * -Client requires user to send a message first, which defines their nickname
- * -Sending logout message does not terminate the Listener process, and thus the program fails to close
- * -Time code is not displayed properly -- working on making this a feature
+ * Client fails to close properly after server crash
+ *
  */
 public class SomnoClient {
     private Socket socket;
@@ -57,11 +56,18 @@ public class SomnoClient {
                 out.println(msg);
             } while (!msg.equals("/logout"));
 
+            Thread.sleep(1000); //makes a socket-handling race condition exception less likely
+            socket.close();
         } catch (UnknownHostException e) {
             System.out.println("Invalid host address. Cannot continue.");
         } catch (IOException e) {
+            System.out.println("IOException caught");
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+
     }
 
 }
@@ -88,6 +94,7 @@ class Listener extends Thread {
                 System.out.println(received);
             }
         } catch (IOException e) {
+            System.out.println("An error occurred!");
             e.printStackTrace();
         }
     }
