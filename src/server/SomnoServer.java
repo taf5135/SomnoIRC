@@ -138,7 +138,7 @@ class CommandInterpreter extends Thread {
                 for (SomnoServerThread thread : connectedUsers) {
                     thread.sendMessage("Server says: " + cmdSplit[1]);
                 }
-                System.out.println(cmdSplit[1]);
+                System.out.println("Server says: " + cmdSplit[1]);
                 break;
             case "kick":
                 //kick a user and log it in the console

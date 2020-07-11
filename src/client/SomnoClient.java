@@ -44,7 +44,7 @@ public class SomnoClient {
             out.println(nickname); //sends the nickname to the server
 
             //start the receiving thread
-            Listener l = new Listener(socket);
+            Listener l = new Listener(socket, this);
             l.start();
 
             String msg;
@@ -70,6 +70,10 @@ public class SomnoClient {
 
     }
 
+    void forceClose() {
+        System.exit(1);
+    }
+
 }
 
 /**
@@ -77,13 +81,15 @@ public class SomnoClient {
  */
 class Listener extends Thread {
     private Socket socket;
+    private SomnoClient hostclient;
 
     /**
      * Creates a new Listener object
      * @param socket the socket that the thread listens on
      */
-    public Listener(Socket socket) {
+    public Listener(Socket socket, SomnoClient hostclient) {
         this.socket = socket;
+        this.hostclient = hostclient;
     }
 
     public void run() {
@@ -96,6 +102,8 @@ class Listener extends Thread {
         } catch (IOException e) {
             System.out.println("An error occurred!");
             e.printStackTrace();
+        } finally {
+            hostclient.forceClose();
         }
     }
 
