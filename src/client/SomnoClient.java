@@ -7,7 +7,7 @@ import java.net.*;
  * Defines a SomnoClient which connects to a SomnoServer
  *
  * KNOWN BUGS:
- * Client fails to close properly after server crash
+ * program can be run
  *
  */
 public class SomnoClient {
@@ -70,7 +70,11 @@ public class SomnoClient {
 
     }
 
-    void forceClose() {
+    /**
+     * Forces the program to close. May leave memory leaks hanging
+     */
+    void forceClose(String reason) {
+        System.out.println("The server connection has been lost. Reason: " + reason);
         System.exit(1);
     }
 
@@ -94,6 +98,7 @@ class Listener extends Thread {
 
     public void run() {
         String received;
+        boolean wasKicked = true;
         try (BufferedReader receive = new BufferedReader(
                 new InputStreamReader(socket.getInputStream()))){
             while (!((received = receive.readLine()).equals("/logout"))) {
@@ -101,9 +106,13 @@ class Listener extends Thread {
             }
         } catch (IOException e) {
             System.out.println("An error occurred!");
-            e.printStackTrace();
+            wasKicked = false;
         } finally {
-            hostclient.forceClose();
+            if (wasKicked) {
+                hostclient.forceClose("kicked");
+            } else {
+                hostclient.forceClose("connection closed");
+            }
         }
     }
 

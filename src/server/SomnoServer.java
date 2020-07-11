@@ -9,9 +9,7 @@ import java.util.HashMap; //eventually replaces the HashSet
  * Defines a server that accepts SomnoClient connections
  *
  * KNOWN BUGS:
- * -Server does not correctly shut down or take commands
- * -Server crash fails to close all client threads
- * -User does not properly log out when kicked
+ * -Server does not correctly shut down when given the shutdown command
  *
  */
 public class SomnoServer {
@@ -45,10 +43,10 @@ public class SomnoServer {
     }
 
     /**
-     * Interrupts the main thread when it's time to shut down
+     * Shuts the program down when given the command
      */
-    public void shutdown() {
-        thisThread.interrupt();
+    void shutdown() {
+        System.exit(0);
     }
 
     /**
@@ -130,6 +128,7 @@ class CommandInterpreter extends Thread {
      */
     private void executeCommand(String cmd) throws IOException {
         String[] cmdSplit = cmd.split(" ", 2);
+        cmdSplit[0] = cmdSplit[0].toLowerCase();
         boolean successful = false;
         switch (cmdSplit[0]) {
             case "say":
