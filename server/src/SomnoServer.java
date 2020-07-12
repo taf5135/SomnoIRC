@@ -1,5 +1,3 @@
-package server;
-
 import java.util.HashSet;
 import java.net.*;
 import java.io.*;

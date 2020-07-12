@@ -1,5 +1,3 @@
-package client;
-
 import java.io.*;
 import java.net.*;
 
@@ -8,6 +6,7 @@ import java.net.*;
  *
  * KNOWN BUGS:
  * program can be run
+ * successfully logging out triggers the "kicked" message
  *
  */
 public class SomnoClient {

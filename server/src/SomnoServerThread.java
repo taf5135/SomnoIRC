@@ -1,5 +1,3 @@
-package server;
-
 import java.util.HashSet;
 import java.io.BufferedReader;
 import java.io.IOException;
