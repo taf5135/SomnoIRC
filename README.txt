@@ -13,19 +13,19 @@ you should know better than to run this garbage.
 
 The server should be fairly easy to run. Start it from the command prompt with this command:
 
-java SomnoServer port
+java -jar SomnoServer port
 
-You can specify a port to run it on, but if you don't, it will launch on 27034. That port shouldn't interfere with any
-other program, so long as Wikipedia didn't lie to me.
+If it fails to recognize java as a thing, add it to the path. You can specify a port to run it on, but if you don't, it
+will launch on 27034. That port shouldn't interfere with any other program, so long as Wikipedia didn't lie to me.
 
 Once the server has launched, it will start trying to accept connections. You will also be able to give it commands.
 Type "say" or "s" to say something to all connected users. Type "kick" and then a connected user's nickname to kick
 them from the server. Finally, when you want to shut down the server, type "shutdown".
 
 The client is similarly easy to run. When you run it, give it an ip and a port to try and connect to, along with a
-nickname. Use this command:
+nickname. Navigate to the correct folder in your shell, then use this command:
 
-java SomnoClient ip port nickname
+java -jar SomnoClient ip port nickname
 
 Type anything into the console to send it as a message. If the server is up, your message should echo back with your
 nickname and timestamp. When you want to shut down, type /logout and you should disconnect.
