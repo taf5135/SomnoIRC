@@ -18,6 +18,8 @@ java -jar SomnoServer port
 If it fails to recognize java as a thing, add it to the path. You can specify a port to run it on, but if you don't, it
 will launch on 27034. That port shouldn't interfere with any other program, so long as Wikipedia didn't lie to me.
 
+You may need to use port-forwarding to make the
+
 Once the server has launched, it will start trying to accept connections. You will also be able to give it commands.
 Type "say" or "s" to say something to all connected users. Type "kick" and then a connected user's nickname to kick
 them from the server. Finally, when you want to shut down the server, type "shutdown".
