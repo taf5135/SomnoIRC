@@ -7,7 +7,7 @@ import java.net.*;
  * KNOWN BUGS:
  * successfully logging out triggers the "kicked" message
  *
- * TODO Add sound effects, protocol, encryption, arg parsing, password use
+ * TODO Add sound effects, protocol, encryption
  *
  */
 public class SomnoClient {
@@ -38,8 +38,8 @@ public class SomnoClient {
                     ip = args[i + 1];
                     break;
                 default:
-                    System.out.println("Error: unrecognized option " + args[i]);
-                    System.out.println("Usage: java SomnoClient -ip [ip] -prt [port] -nick [nickname] -pwd [password]");
+                    System.err.println("Error: unrecognized option " + args[i]);
+                    System.err.println("Usage: java SomnoClient -ip [ip] -prt [port] -nick [nickname] -pwd [password]");
                     System.exit(1);
             }
             i++;
@@ -65,7 +65,6 @@ public class SomnoClient {
 
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-            //TODO add code here
             //if the user has input a password, send it with the attached "/pwd" format
             //otherwise, just send the nickname
             if(!pwd.equals("")) {
@@ -90,9 +89,9 @@ public class SomnoClient {
             Thread.sleep(1000); //makes a socket-handling race condition exception less likely
             socket.close();
         } catch (UnknownHostException e) {
-            System.out.println("Invalid host address. Cannot continue.");
+            System.err.println("Invalid host address. Cannot continue.");
         } catch (IOException e) {
-            System.out.println("IOException caught");
+            System.err.println("IOException caught");
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();

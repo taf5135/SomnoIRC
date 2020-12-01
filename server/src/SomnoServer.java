@@ -8,10 +8,9 @@ import java.util.HashMap; //eventually replaces the HashSet
  *
  * KNOWN BUGS:
  * Server does not correctly shut down when given the shutdown command
- * Server gets an IOException when a client tries to connect with a bad password
- * A user disconnecting with a bad password happens twice
+ * Disconnect message is displayed twice server-side if the client closes unexpectedly
  *
- * TODO Add sound effects, protocol, encryption, arg parsing, password use
+ * TODO Add sound effects, protocol, encryption
  */
 public class SomnoServer {
     private HashSet<SomnoServerThread> connectedUsers = new HashSet();
@@ -46,9 +45,9 @@ public class SomnoServer {
             SomnoServer s = new SomnoServer(port, pwd);
 
         } catch (NumberFormatException e) {
-            System.out.println("Error: Port is not a number!");
+            System.err.println("Error: Port is not a number!");
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Error: missing argument");
+            System.err.println("Error: missing argument");
         }
         System.out.println("SomnoServer shutting down...");
     }
@@ -78,7 +77,7 @@ public class SomnoServer {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
-            System.out.println("Generic exception caught");
+            System.err.println("Generic exception caught");
             e.printStackTrace();
         }
 
