@@ -5,8 +5,9 @@ import java.net.*;
  * Defines a SomnoClient which connects to a SomnoServer
  *
  * KNOWN BUGS:
- * program can be run
  * successfully logging out triggers the "kicked" message
+ *
+ * TODO Add sound effects, protocol, encryption, arg parsing, password use
  *
  */
 public class SomnoClient {
@@ -14,14 +15,37 @@ public class SomnoClient {
 
     public static void main(String[] args) {
         //starts the client
-        if (args.length != 3) {
-            System.out.println("Usage: java SomnoClient ip port nickname");
-        } else {
-            SomnoClient c = new SomnoClient(
-                    args[0],
-                    Integer.parseInt(args[1]),
-                    args[2]);
+
+        int argcount = args.length; //need to pull this code block out into a launcher later
+        int port = 27034;
+        String pwd = "";
+        String nick = "user";
+        String ip = "localhost";
+
+        //this is a bad way to do arg parsing but until i can install getopt it'll do
+        for (int i = 0; i < argcount; i++) {
+            switch (args[i]) {
+                case "-prt":
+                    port = Integer.parseInt(args[i + 1]);
+                    break;
+                case "-pwd":
+                    pwd = args[i + 1];
+                    break;
+                case "-nick":
+                    nick = args[i + 1];
+                    break;
+                case "-ip":
+                    ip = args[i + 1];
+                    break;
+                default:
+                    System.out.println("Error: unrecognized option " + args[i]);
+                    System.out.println("Usage: java SomnoClient -ip [ip] -prt [port] -nick [nickname] -pwd [password]");
+                    System.exit(1);
+            }
+            i++;
         }
+        SomnoClient c = new SomnoClient(ip, port, nick, pwd);
+
     }
 
     /**
@@ -29,8 +53,9 @@ public class SomnoClient {
      * @param ip the hostname to connect to
      * @param port the port which it tries to connect to the host on
      * @param nickname the nickname the client will be using
+     * @param pwd the password of the server
      */
-    public SomnoClient(String ip, int port, String nickname) {
+    public SomnoClient(String ip, int port, String nickname, String pwd) {
         //first try to connect to the server
         //if successful, send the nickname and then start listening and sending information
         //sending will be handled on this thread, while listening will be handled on another
@@ -39,6 +64,13 @@ public class SomnoClient {
             socket = new Socket(ip, port);
 
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            //TODO add code here
+            //if the user has input a password, send it with the attached "/pwd" format
+            //otherwise, just send the nickname
+            if(!pwd.equals("")) {
+                out.println("/pwd " + pwd);
+            }
 
             out.println(nickname); //sends the nickname to the server
 

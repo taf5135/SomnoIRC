@@ -7,8 +7,11 @@ import java.util.HashMap; //eventually replaces the HashSet
  * Defines a server that accepts SomnoClient connections
  *
  * KNOWN BUGS:
- * -Server does not correctly shut down when given the shutdown command
+ * Server does not correctly shut down when given the shutdown command
+ * Server gets an IOException when a client tries to connect with a bad password
+ * A user disconnecting with a bad password happens twice
  *
+ * TODO Add sound effects, protocol, encryption, arg parsing, password use
  */
 public class SomnoServer {
     private HashSet<SomnoServerThread> connectedUsers = new HashSet();
@@ -27,15 +30,25 @@ public class SomnoServer {
      */
     public static void main(String[] args) {
         try {
-            if (args.length == 0) {
-                //launch on default port 27034
-                SomnoServer s = new SomnoServer(DEFAULT_PORT);
-            } else {
-                //launch on specified port
-                SomnoServer s = new SomnoServer(Integer.parseInt(args[0]));
+            int port = DEFAULT_PORT;
+            String pwd = "";
+            int argcount = args.length; //need to pull this code block out into a launcher later
+            for (int i = 0; i < argcount; i++) {
+                if (args[i].equals("-prt")) {
+                    port = Integer.parseInt(args[i + 1]);
+                    i++;
+                } else if (args[i].equals("-pwd")) {
+                    pwd = args[i + 1];
+                    i++;
+                }
             }
+
+            SomnoServer s = new SomnoServer(port, pwd);
+
         } catch (NumberFormatException e) {
             System.out.println("Error: Port is not a number!");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Error: missing argument");
         }
         System.out.println("SomnoServer shutting down...");
     }
@@ -47,17 +60,18 @@ public class SomnoServer {
         System.exit(0);
     }
 
+
     /**
      * Defines a SomnoServer which runs on a port at its current ip address
      * @param port the port it runs on
      */
-    public SomnoServer(int port) {
+    public SomnoServer(int port, String pwd) {
         System.out.println("Attempting to launch on port " + port);
         CommandInterpreter c = new CommandInterpreter(connectedUsers, this);
         c.start();
         try (ServerSocket socket = new ServerSocket(port)) {
             while (!Thread.interrupted()) {
-                SomnoServerThread t = new SomnoServerThread(socket.accept(), connectedUsers);
+                SomnoServerThread t = new SomnoServerThread(socket.accept(), connectedUsers, pwd);
                 connectedUsers.add(t);
                 t.start();
             }
@@ -82,6 +96,8 @@ class CommandInterpreter extends Thread {
     1: send messages ("say" command)
     2: force remove users ("kick" command)
     3: shut down the server ("shutdown" command)
+    //TODO
+    4: display password
 
     commands server-side will match client side commands, starting with a /
 

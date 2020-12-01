@@ -18,15 +18,17 @@ public class SomnoServerThread extends Thread {
     private PrintWriter send;
     private String nickname;
     private boolean kicked = false;
+    private String pwd;
 
     /**
      * Constructor for a SomnoServerThread. Stores the socket and connectedusers
      * @param socket the socket it's connecting on
      * @param connectedUsers the HashSet of connected users
      */
-    public SomnoServerThread(Socket socket, HashSet<SomnoServerThread> connectedUsers) {
+    public SomnoServerThread(Socket socket, HashSet<SomnoServerThread> connectedUsers, String pwd) {
         this.socket = socket;
         this.connectedUsers = connectedUsers;
+        this.pwd = pwd;
     }
 
     /**
@@ -130,8 +132,8 @@ public class SomnoServerThread extends Thread {
 
     /**
      * Checks if a nickname is taken. Returns true if it's taken, false if not
-     * @param nick
-     * @return
+     * @param nick the string provided by the user as the requested nickname
+     * @return true if nick is available, false if not
      */
     public boolean checkNickname(String nick) {
         for (SomnoServerThread thread : connectedUsers) {
@@ -160,6 +162,29 @@ public class SomnoServerThread extends Thread {
             send = new PrintWriter(socket.getOutputStream(), true);
             receive = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
+
+            //if the server requires a password, read that in as the first line from the user
+            //compare that to the server password. If they match, continue as normal. If not, send
+            //an error to the user and close the connection.
+            //requires the "/pwd password" protocol format and "/nick nickname" to work properly
+            if (!pwd.equals("")) {
+                //read the password from the user
+                String pwd_cmd = receive.readLine();
+                String[] split_cmd = pwd_cmd.split(" ");
+
+                //check if the password has the proper format
+                if (!(split_cmd[0].equals("/pwd") && split_cmd.length > 1)) {
+                    //if the format is bad, print an error and close the connection
+                    send.println("Error: password not given");
+                    send.println("/logout");
+                }
+
+                if(!(split_cmd[1].equals(pwd))) {
+                    send.println("Error: password was incorrect");
+                    send.println("/logout");
+                }
+
+            }
 
             nickname = getValidNickname(receive.readLine(), 1); //gets the nickname
             update(nickname, 1);
