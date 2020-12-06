@@ -8,6 +8,7 @@ import java.net.*;
  * successfully logging out triggers the "kicked" message
  *
  * TODO Add sound effects, protocol, encryption
+ * TODO add command that toggles sound
  *
  */
 public class SomnoClient implements SomnoProtocol {
@@ -18,6 +19,7 @@ public class SomnoClient implements SomnoProtocol {
 
         int argcount = args.length; //need to pull this code block out into a launcher later
         int port = 27034;
+        boolean sound = true;
         String pwd = "";
         String nick = "user";
         String ip = "localhost";
@@ -37,6 +39,9 @@ public class SomnoClient implements SomnoProtocol {
                 case "-ip":
                     ip = args[i + 1];
                     break;
+                case "-nosound":
+                    sound = false;
+                    break;
                 default:
                     System.err.println("Error: unrecognized option " + args[i]);
                     System.err.println("Usage: java SomnoClient -ip [ip] -prt [port] -nick [nickname] -pwd [password]");
@@ -44,7 +49,7 @@ public class SomnoClient implements SomnoProtocol {
             }
             i++;
         }
-        SomnoClient c = new SomnoClient(ip, port, nick, pwd);
+        SomnoClient c = new SomnoClient(ip, port, nick, pwd, sound);
 
     }
 
@@ -55,7 +60,7 @@ public class SomnoClient implements SomnoProtocol {
      * @param nickname the nickname the client will be using
      * @param pwd the password of the server
      */
-    public SomnoClient(String ip, int port, String nickname, String pwd) {
+    public SomnoClient(String ip, int port, String nickname, String pwd, boolean sound) {
         //first try to connect to the server
         //if successful, send the nickname and then start listening and sending information
         //sending will be handled on this thread, while listening will be handled on another
@@ -112,6 +117,8 @@ public class SomnoClient implements SomnoProtocol {
 
 /**
  * Defines a Listener which listens on a socket for any new lines
+ * When a line is received, it prints it to the console
+ * TODO add sound here
  */
 class Listener extends Thread {
     private Socket socket;

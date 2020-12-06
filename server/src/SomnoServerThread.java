@@ -178,7 +178,7 @@ public class SomnoServerThread extends Thread implements SomnoProtocol {
                 String[] split_cmd = pwd_cmd.split(" ");
 
                 //check if the password has the proper format
-                if (!(split_cmd[0].equals("/pwd") && split_cmd.length > 1)) {
+                if (!(split_cmd[0].equals(SomnoProtocol.pwdHeader) && split_cmd.length > 1)) {
                     //if the format is bad, print an error and close the connection
                     send.println("Error: password not given");
                     closeConnections(receive, send);

@@ -10,7 +10,7 @@ import java.util.HashMap; //eventually replaces the HashSet
  * Server does not correctly shut down when given the shutdown command
  * Disconnect message is displayed twice server-side if the client closes unexpectedly
  *
- * TODO Add sound effects, protocol, encryption
+ * TODO Add protocol, encryption
  */
 public class SomnoServer implements SomnoProtocol {
     private HashSet<SomnoServerThread> connectedUsers = new HashSet();
