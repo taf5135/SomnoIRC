@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 /**
  * Defines a SomnoServerThread, which is started by the SomnoServer
  */
-public class SomnoServerThread extends Thread {
+public class SomnoServerThread extends Thread implements SomnoProtocol {
     HashSet<SomnoServerThread> connectedUsers;
     private Socket socket;
     private BufferedReader receive;

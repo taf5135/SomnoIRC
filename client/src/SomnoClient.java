@@ -10,7 +10,7 @@ import java.net.*;
  * TODO Add sound effects, protocol, encryption
  *
  */
-public class SomnoClient {
+public class SomnoClient implements SomnoProtocol {
     private Socket socket;
 
     public static void main(String[] args) {

@@ -12,9 +12,10 @@ import java.util.HashMap; //eventually replaces the HashSet
  *
  * TODO Add sound effects, protocol, encryption
  */
-public class SomnoServer {
+public class SomnoServer implements SomnoProtocol {
     private HashSet<SomnoServerThread> connectedUsers = new HashSet();
     private static final int DEFAULT_PORT = 27034;
+    private static String storedPwd = "";
     Thread thisThread = Thread.currentThread();
     /*
      * On startup, check whether a port number was provided. If none, use 27034
@@ -41,6 +42,7 @@ public class SomnoServer {
                     i++;
                 }
             }
+            storedPwd = pwd;
 
             SomnoServer s = new SomnoServer(port, pwd);
 
@@ -82,6 +84,10 @@ public class SomnoServer {
         }
 
     }
+
+    String getStoredPwd() {
+        return storedPwd;
+    }
 }
 
 /**
@@ -95,7 +101,6 @@ class CommandInterpreter extends Thread {
     1: send messages ("say" command)
     2: force remove users ("kick" command)
     3: shut down the server ("shutdown" command)
-    //TODO
     4: display password
 
     commands server-side will match client side commands, starting with a /
@@ -177,6 +182,11 @@ class CommandInterpreter extends Thread {
                 //interrupt the SomnoServer main thread, causing it to shut down
                 hostServer.shutdown();
                 break;
+            case "pwd":
+                if(hostServer.getStoredPwd().equals(""))
+                    System.out.println("No stored password");
+                else
+                    System.out.println("Current password is " + hostServer.getStoredPwd());
         }
     }
 
