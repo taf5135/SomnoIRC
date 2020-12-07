@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import javax.sound.sampled.*;
 
 /**
  * Defines a SomnoClient which connects to a SomnoServer
@@ -8,7 +9,6 @@ import java.net.*;
  * successfully logging out triggers the "kicked" message
  *
  * TODO Add sound effects, protocol, encryption
- * TODO add command that toggles sound
  *
  */
 public class SomnoClient implements SomnoProtocol {
@@ -19,7 +19,7 @@ public class SomnoClient implements SomnoProtocol {
 
         int argcount = args.length; //need to pull this code block out into a launcher later
         int port = 27034;
-        boolean sound = true;
+        boolean soundOn = true;
         String pwd = "";
         String nick = "user";
         String ip = "localhost";
@@ -40,7 +40,7 @@ public class SomnoClient implements SomnoProtocol {
                     ip = args[i + 1];
                     break;
                 case "-nosound":
-                    sound = false;
+                    soundOn = false;
                     break;
                 default:
                     System.err.println("Error: unrecognized option " + args[i]);
@@ -49,7 +49,7 @@ public class SomnoClient implements SomnoProtocol {
             }
             i++;
         }
-        SomnoClient c = new SomnoClient(ip, port, nick, pwd, sound);
+        SomnoClient c = new SomnoClient(ip, port, nick, pwd, soundOn);
 
     }
 
@@ -60,7 +60,7 @@ public class SomnoClient implements SomnoProtocol {
      * @param nickname the nickname the client will be using
      * @param pwd the password of the server
      */
-    public SomnoClient(String ip, int port, String nickname, String pwd, boolean sound) {
+    public SomnoClient(String ip, int port, String nickname, String pwd, boolean soundOn) {
         //first try to connect to the server
         //if successful, send the nickname and then start listening and sending information
         //sending will be handled on this thread, while listening will be handled on another
@@ -79,7 +79,7 @@ public class SomnoClient implements SomnoProtocol {
             out.println(nickname); //sends the nickname to the server
 
             //start the receiving thread
-            Listener l = new Listener(socket, this);
+            Listener l = new Listener(socket, this, soundOn);
             l.start();
 
             String msg;
@@ -117,36 +117,97 @@ public class SomnoClient implements SomnoProtocol {
 
 /**
  * Defines a Listener which listens on a socket for any new lines
- * When a line is received, it prints it to the console
- * TODO add sound here
+ * When a line is received, it prints it to the console and, if the user chose,
+ * plays a sound
  */
-class Listener extends Thread {
+class Listener extends Thread implements SomnoProtocol{
     private Socket socket;
     private SomnoClient hostclient;
+    private boolean soundOn;
+
 
     /**
      * Creates a new Listener object
      * @param socket the socket that the thread listens on
      */
-    public Listener(Socket socket, SomnoClient hostclient) {
+    public Listener(Socket socket, SomnoClient hostclient, boolean soundOn) {
         this.socket = socket;
         this.hostclient = hostclient;
+        this.soundOn = soundOn;
+    }
+
+    /**
+     * Plays a sound file
+     * @param filename the name of the file to play
+     */
+    public void playSound(String filename) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
+        AudioInputStream stream = AudioSystem.getAudioInputStream(new File("../../resources/audio/" + filename).getAbsoluteFile());
+        Clip clip = AudioSystem.getClip();
+        clip.open(stream);
+        clip.start();
     }
 
     public void run() {
         String received;
-        boolean wasKicked = true;
+        String soundFileName = "msg_received.wav";
+        int logoutCode = 0;
         try (BufferedReader receive = new BufferedReader(
                 new InputStreamReader(socket.getInputStream()))){
-            while (!((received = receive.readLine()).equals("/logout"))) {
-                System.out.println(received);
+            label:
+            while (true) {
+                received = receive.readLine();
+
+                String[] split = received.split(" ", 2);
+                String header = split[0];
+                String body = split[1];
+
+                switch (header) {
+                    case stdMsgHeader:
+                        System.out.println(body);
+                        soundFileName = "msg_received.wav";
+                        break;
+                    case logoutHeader:
+                        logoutCode = Integer.parseInt(body);
+                        break label;
+                    case userJoinHeader:
+                        System.out.println(body);
+                        soundFileName = "user_join.wav";
+                        break;
+                    case userLeaveHeader:
+                        System.out.println(body);
+                        soundFileName = "user_leave.wav";
+                        break;
+                }
+
+                if (soundOn) {
+                    //play the appropriate sound
+                    try {
+                        playSound(soundFileName);
+                    } catch (Exception e) {
+                        System.err.println("Error playing file: " + e);
+                    }
+                }
             }
         } catch (IOException e) {
             System.out.println("An error occurred!");
-            wasKicked = false;
+            logoutCode = 0;
+            if(soundOn) {
+                try {
+                    playSound("err.wav");
+                } catch (Exception f) {
+                    System.err.println("Error playing file: " + f);
+                }
+            }
         } finally {
-            if (wasKicked) {
+            if (logoutCode == 1) {
                 hostclient.forceClose("kicked");
+                if(soundOn) {
+                    try {
+                        playSound("err.wav");
+                    } catch (Exception f) {
+                        System.err.println("Error playing file: " + f);
+                    }
+                }
             } else {
                 hostclient.forceClose("connection closed");
             }

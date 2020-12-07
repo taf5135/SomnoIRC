@@ -59,12 +59,15 @@ public class SomnoServerThread extends Thread implements SomnoProtocol {
         switch (op) { //format the message based on the opcode
             case STD_MSG:
                 msg = nickname + " [" + time + "] > " + msg;
+                msg = String.format(stdMsg, msg);
                 break;
             case NEW_CONNECTION:
                 msg = msg + " connected at [" + time + "]";
+                msg = String.format(userJoin, msg);
                 break;
             case DISCONNECTION:
                 msg = msg + " disconnected at [" + time + "]";
+                msg = String.format(userLeave, msg);
                 break;
         }
 
@@ -101,7 +104,11 @@ public class SomnoServerThread extends Thread implements SomnoProtocol {
      * @throws IOException thrown when receive, send, or socket are already closed
      */
     private void closeConnections(BufferedReader receive, PrintWriter send) throws IOException {
-        send.println("/logout");
+        if(kicked) {
+            send.println("/logout 1");
+        } else {
+            send.println("/logout 0");
+        }
         receive.close();
         send.close();
         socket.close();
@@ -178,7 +185,7 @@ public class SomnoServerThread extends Thread implements SomnoProtocol {
                 String[] split_cmd = pwd_cmd.split(" ");
 
                 //check if the password has the proper format
-                if (!(split_cmd[0].equals(SomnoProtocol.pwdHeader) && split_cmd.length > 1)) {
+                if (!(split_cmd[0].equals(pwdHeader) && split_cmd.length > 1)) {
                     //if the format is bad, print an error and close the connection
                     send.println("Error: password not given");
                     closeConnections(receive, send);
@@ -201,7 +208,7 @@ public class SomnoServerThread extends Thread implements SomnoProtocol {
                 while (!kicked) {
                     msgIn = receive.readLine();
                     if (msgIn != null) {
-                        if (msgIn.equals("/logout")) {
+                        if (msgIn.equals(logoutHeader)) {
                             break;
                         } else { //send message to all connected clients
                             update(msgIn, operation.STD_MSG);

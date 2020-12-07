@@ -5,6 +5,6 @@
 
 public class SomnoException extends Exception {
     public SomnoException(String msg) {
-        super(msg); //currently just throws a regular exeption, need to change this
+        super(msg); //currently just throws a regular exception, need to change this
     }
 }
