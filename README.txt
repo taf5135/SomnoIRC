@@ -1,24 +1,20 @@
-SomnoIRC is not protected under any license. This is because it sucks. Any reasonable implementation of it would
-have to change the source code so much that it'd functionally be a different program. Even I, a gaming youtuber who
-wrote this after his first year at uni, can see the obvious problems in this. It isn't encrypted, it's full of
-memory leaks waiting to go off at any moment, and it barely works even with two threads for every client or server.
-If you want a secure IRC, there's thousands of better programs out there. If this ever stops working, please delete
-the program and then burn your hard drive to keep it from spreading.
+SomnoIRC is a small custom instant-messaging program that I built after my first year at RIT. I wouldn't recommend using it in 
+production as it has several issues, but it is useful as a reference for a simple socket-based infrastructure. I might expand on it
+in the future for other projects, or rewrite it in something like Python. 
 
-With that said, here are the instructions for this cursed program.
+With that said, here are the instructions for this program.
 
 When you start either program, Windows should ask you if you want to allow it through the firewall. Let it. If you have
-another firewall installed, let it through that as well. If you're not running windows and are instead on Linux, then
-you should know better than to run this garbage.
+another firewall installed, let it through that as well. On Linux you will need to add it to your own firewall manually.
 
 The server should be fairly easy to run. Start it from the command prompt with this command:
 
 java -jar SomnoServer port
 
-If it fails to recognize java as a thing, add it to the path. You can specify a port to run it on, but if you don't, it
-will launch on 27034. That port shouldn't interfere with any other program, so long as Wikipedia didn't lie to me.
+If it fails to recognize java, add it to the path. You can specify a port to run it on, but if you don't, it
+will launch on 27034. That port shouldn't interfere with any other program, and it is easy to customize if it does.
 
-You may need to use port-forwarding to make the server and client work properly
+You will need to use port-forwarding to make the server and client work properly outside your home net. 
 
 Once the server has launched, it will start trying to accept connections. You will also be able to give it commands.
 Type "say" or "s" to say something to all connected users. Type "kick" and then a connected user's nickname to kick
@@ -31,5 +27,3 @@ java -jar SomnoClient ip port nickname
 
 Type anything into the console to send it as a message. If the server is up, your message should echo back with your
 nickname and timestamp. When you want to shut down, type /logout and you should disconnect.
-
-If you want to talk to me about making this not a pile of trash, email me at taf5135@rit.edu.
